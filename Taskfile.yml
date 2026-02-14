@@ -1,0 +1,12 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+    build:
+      cmds:
+        - go build -o bin/spoticsv cmd/csvtest/main.go
+    silent: true
