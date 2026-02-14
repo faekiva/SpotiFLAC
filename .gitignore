@@ -59,6 +59,10 @@ temp/
 # Test files
 test
 
+# CSV files (personal music library data)
+*.csv
+
 # Build notes (optional - uncomment if you don't want to commit)
 # BUILD_NOTES.md
 push.bat
+.aider*

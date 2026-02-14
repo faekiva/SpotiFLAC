@@ -1409,3 +1409,163 @@ func (a *App) CreateM3U8File(m3u8Name string, outputDir string, filePaths []stri
 
 	return nil
 }
+
+func (a *App) ParseCSVFile(filePath string) (*backend.CSVImportResult, error) {
+	if filePath == "" {
+		return nil, fmt.Errorf("file path is required")
+	}
+
+	return backend.ParseSpotifyCSV(filePath)
+}
+
+func (a *App) ValidateCSVFile(filePath string) error {
+	if filePath == "" {
+		return fmt.Errorf("file path is required")
+	}
+
+	return backend.ValidateCSVFile(filePath)
+}
+
+func (a *App) GetCSVStats(filePath string) (map[string]interface{}, error) {
+	if filePath == "" {
+		return nil, fmt.Errorf("file path is required")
+	}
+
+	return backend.GetCSVStats(filePath)
+}
+
+type CSVDownloadRequest struct {
+	CSVFilePath          string `json:"csv_file_path"`
+	Service              string `json:"service"`
+	OutputDir            string `json:"output_dir"`
+	AudioFormat          string `json:"audio_format"`
+	FilenameFormat       string `json:"filename_format"`
+	TrackNumber          bool   `json:"track_number"`
+	EmbedLyrics          bool   `json:"embed_lyrics"`
+	EmbedMaxQualityCover bool   `json:"embed_max_quality_cover"`
+	AllowFallback        bool   `json:"allow_fallback"`
+	UseFirstArtistOnly   bool   `json:"use_first_artist_only"`
+	StartIndex           int    `json:"start_index"`
+	EndIndex             int    `json:"end_index"`
+}
+
+type CSVDownloadResponse struct {
+	Success         bool     `json:"success"`
+	TotalTracks     int      `json:"total_tracks"`
+	ProcessedTracks int      `json:"processed_tracks"`
+	SuccessCount    int      `json:"success_count"`
+	FailureCount    int      `json:"failure_count"`
+	SkippedCount    int      `json:"skipped_count"`
+	Errors          []string `json:"errors"`
+	Message         string   `json:"message"`
+}
+
+func (a *App) DownloadFromCSV(req CSVDownloadRequest) (CSVDownloadResponse, error) {
+	if req.CSVFilePath == "" {
+		return CSVDownloadResponse{
+			Success: false,
+			Message: "CSV file path is required",
+		}, fmt.Errorf("CSV file path is required")
+	}
+
+	if req.Service == "" {
+		req.Service = "tidal"
+	}
+
+	if req.OutputDir == "" {
+		req.OutputDir = "."
+	}
+
+	if req.AudioFormat == "" {
+		req.AudioFormat = "LOSSLESS"
+	}
+
+	if req.FilenameFormat == "" {
+		req.FilenameFormat = "title-artist"
+	}
+
+	csvResult, err := backend.ParseSpotifyCSV(req.CSVFilePath)
+	if err != nil {
+		return CSVDownloadResponse{
+			Success: false,
+			Message: fmt.Sprintf("Failed to parse CSV: %v", err),
+		}, err
+	}
+
+	if !csvResult.Success || len(csvResult.Tracks) == 0 {
+		return CSVDownloadResponse{
+			Success: false,
+			Message: "No valid tracks found in CSV",
+		}, fmt.Errorf("no valid tracks found in CSV")
+	}
+
+	response := CSVDownloadResponse{
+		Success:     true,
+		TotalTracks: len(csvResult.Tracks),
+		Errors:      make([]string, 0),
+	}
+
+	startIdx := req.StartIndex
+	endIdx := req.EndIndex
+	if startIdx < 0 {
+		startIdx = 0
+	}
+	if endIdx <= 0 || endIdx > len(csvResult.Tracks) {
+		endIdx = len(csvResult.Tracks)
+	}
+
+	tracksToProcess := csvResult.Tracks[startIdx:endIdx]
+	response.ProcessedTracks = len(tracksToProcess)
+
+	for idx, track := range tracksToProcess {
+		fmt.Printf("\n[%d/%d] Processing: %s - %s\n", idx+1+startIdx, response.TotalTracks, track.TrackName, track.ArtistName)
+
+		downloadReq := DownloadRequest{
+			Service:              req.Service,
+			SpotifyID:            track.SpotifyID,
+			TrackName:            track.TrackName,
+			ArtistName:           track.ArtistName,
+			AlbumName:            track.AlbumName,
+			ReleaseDate:          track.ReleaseDate,
+			OutputDir:            req.OutputDir,
+			AudioFormat:          req.AudioFormat,
+			FilenameFormat:       req.FilenameFormat,
+			TrackNumber:          req.TrackNumber,
+			Position:             idx + 1 + startIdx,
+			EmbedLyrics:          req.EmbedLyrics,
+			EmbedMaxQualityCover: req.EmbedMaxQualityCover,
+			AllowFallback:        req.AllowFallback,
+			UseFirstArtistOnly:   req.UseFirstArtistOnly,
+			Duration:             track.DurationMS / 1000,
+		}
+
+		downloadResp, err := a.DownloadTrack(downloadReq)
+		if err != nil {
+			response.FailureCount++
+			errorMsg := fmt.Sprintf("Track %d (%s - %s): %v", idx+1+startIdx, track.TrackName, track.ArtistName, err)
+			response.Errors = append(response.Errors, errorMsg)
+			fmt.Printf("✗ Failed: %v\n", err)
+			continue
+		}
+
+		if downloadResp.Success {
+			if downloadResp.AlreadyExists {
+				response.SkippedCount++
+				fmt.Printf("⊙ Skipped (already exists)\n")
+			} else {
+				response.SuccessCount++
+				fmt.Printf("✓ Downloaded successfully\n")
+			}
+		} else {
+			response.FailureCount++
+			errorMsg := fmt.Sprintf("Track %d (%s - %s): %s", idx+1+startIdx, track.TrackName, track.ArtistName, downloadResp.Error)
+			response.Errors = append(response.Errors, errorMsg)
+			fmt.Printf("✗ Failed: %s\n", downloadResp.Error)
+		}
+	}
+
+	response.Message = fmt.Sprintf("Completed: %d succeeded, %d skipped, %d failed",
+		response.SuccessCount, response.SkippedCount, response.FailureCount)
+
+	return response, nil
+}
