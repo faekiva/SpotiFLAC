@@ -208,6 +208,9 @@ func downloadTrack(track backend.CSVTrack, config Config, position int) (success
 		return false, false, fmt.Errorf("track not available on %s", config.Service)
 	}
 
+	isrc := availability.ISRC
+	spotifyURL := fmt.Sprintf("https://open.spotify.com/track/%s", track.SpotifyID)
+
 	fmt.Printf("✅ Found URL on %s\n", config.Service)
 	fmt.Printf("⬇️  Downloading...\n")
 
@@ -233,14 +236,13 @@ func downloadTrack(track backend.CSVTrack, config Config, position int) (success
 			config.EmbedMaxCover,
 			0, 0, 0, 0,
 			"", "",
-			fmt.Sprintf("https://open.spotify.com/track/%s", track.SpotifyID),
+			spotifyURL,
 			config.AllowFallback,
 			config.UseFirstArtistOnly,
+			isrc,
 		)
 
 	case "qobuz":
-		// Get ISRC
-		isrc, _ := client.GetISRC(track.SpotifyID)
 		downloader := backend.NewQobuzDownloader()
 		filename, err = downloader.DownloadTrackWithISRC(
 			isrc,
@@ -260,7 +262,7 @@ func downloadTrack(track backend.CSVTrack, config Config, position int) (success
 			config.EmbedMaxCover,
 			0, 0, 0, 0,
 			"", "",
-			fmt.Sprintf("https://open.spotify.com/track/%s", track.SpotifyID),
+			spotifyURL,
 			config.AllowFallback,
 			config.UseFirstArtistOnly,
 		)
@@ -285,8 +287,9 @@ func downloadTrack(track backend.CSVTrack, config Config, position int) (success
 			config.EmbedMaxCover,
 			0,
 			"", "",
-			fmt.Sprintf("https://open.spotify.com/track/%s", track.SpotifyID),
+			spotifyURL,
 			config.UseFirstArtistOnly,
+			isrc,
 		)
 
 	default:

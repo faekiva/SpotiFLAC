@@ -8,14 +8,38 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 )
 
+var (
+	spotifyBaseURL string
+	songLinkAPIURL string
+)
+
+const qobuzAppID = "798273057"
+
+func init() {
+	b, _ := base64.StdEncoding.DecodeString("aHR0cHM6Ly9vcGVuLnNwb3RpZnkuY29tL3RyYWNrLw==")
+	spotifyBaseURL = string(b)
+	b, _ = base64.StdEncoding.DecodeString("aHR0cHM6Ly9hcGkuc29uZy5saW5rL3YxLWFscGhhLjEvbGlua3M=")
+	songLinkAPIURL = string(b)
+}
+
 type SongLinkClient struct {
 	client           *http.Client
+	mu               sync.Mutex
 	lastAPICallTime  time.Time
 	apiCallCount     int
 	apiCallResetTime time.Time
+}
+
+type SongLinkResult struct {
+	TidalURL  string
+	AmazonURL string
+	DeezerURL string
+	QobuzURL  string
+	ISRC      string
 }
 
 type SongLinkURLs struct {
@@ -32,6 +56,7 @@ type TrackAvailability struct {
 	TidalURL  string `json:"tidal_url,omitempty"`
 	AmazonURL string `json:"amazon_url,omitempty"`
 	QobuzURL  string `json:"qobuz_url,omitempty"`
+	ISRC      string `json:"isrc,omitempty"`
 }
 
 type songLinkResponse struct {
@@ -50,6 +75,9 @@ func NewSongLinkClient() *SongLinkClient {
 }
 
 func (s *SongLinkClient) waitForRateLimit() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	now := time.Now()
 	if now.Sub(s.apiCallResetTime) >= time.Minute {
 		s.apiCallCount = 0
@@ -60,35 +88,37 @@ func (s *SongLinkClient) waitForRateLimit() {
 		waitTime := time.Minute - now.Sub(s.apiCallResetTime)
 		if waitTime > 0 {
 			fmt.Printf("Rate limit reached, waiting %v...\n", waitTime.Round(time.Second))
+			s.mu.Unlock()
 			time.Sleep(waitTime)
+			s.mu.Lock()
 			s.apiCallCount = 0
 			s.apiCallResetTime = time.Now()
 		}
 	}
 
 	if !s.lastAPICallTime.IsZero() {
-		timeSinceLastCall := now.Sub(s.lastAPICallTime)
+		timeSinceLastCall := time.Now().Sub(s.lastAPICallTime)
 		minDelay := 7 * time.Second
 		if timeSinceLastCall < minDelay {
 			waitTime := minDelay - timeSinceLastCall
 			fmt.Printf("Rate limiting: waiting %v...\n", waitTime.Round(time.Second))
+			s.mu.Unlock()
 			time.Sleep(waitTime)
+			s.mu.Lock()
 		}
 	}
 }
 
 func buildSongLinkAPIURL(spotifyTrackID, region string) string {
-	spotifyBase, _ := base64.StdEncoding.DecodeString("aHR0cHM6Ly9vcGVuLnNwb3RpZnkuY29tL3RyYWNrLw==")
-	spotifyURL := fmt.Sprintf("%s%s", string(spotifyBase), spotifyTrackID)
-
-	apiBase, _ := base64.StdEncoding.DecodeString("aHR0cHM6Ly9hcGkuc29uZy5saW5rL3YxLWFscGhhLjEvbGlua3M/dXJsPQ==")
-	apiURL := fmt.Sprintf("%s%s", string(apiBase), url.QueryEscape(spotifyURL))
-
+	u, _ := url.Parse(songLinkAPIURL)
+	q := u.Query()
+	q.Set("url", spotifyBaseURL+spotifyTrackID)
+	q.Set("songIfSingle", "true")
 	if region != "" {
-		apiURL += fmt.Sprintf("&userCountry=%s", region)
+		q.Set("userCountry", region)
 	}
-
-	return apiURL
+	u.RawQuery = q.Encode()
+	return u.String()
 }
 
 func (s *SongLinkClient) doWithRetry(req *http.Request) (*http.Response, error) {
@@ -102,8 +132,10 @@ func (s *SongLinkClient) doWithRetry(req *http.Request) (*http.Response, error) 
 			return nil, err
 		}
 
+		s.mu.Lock()
 		s.lastAPICallTime = time.Now()
 		s.apiCallCount++
+		s.mu.Unlock()
 
 		if resp.StatusCode == 429 {
 			resp.Body.Close()
@@ -127,7 +159,7 @@ func (s *SongLinkClient) doWithRetry(req *http.Request) (*http.Response, error) 
 	return nil, fmt.Errorf("request failed after %d retries", maxRetries)
 }
 
-func (s *SongLinkClient) GetAllURLsFromSpotify(spotifyTrackID string, region string) (*SongLinkURLs, error) {
+func (s *SongLinkClient) lookup(spotifyTrackID, region string) (*SongLinkResult, error) {
 	s.waitForRateLimit()
 
 	apiURL := buildSongLinkAPIURL(spotifyTrackID, region)
@@ -145,8 +177,6 @@ func (s *SongLinkClient) GetAllURLsFromSpotify(spotifyTrackID string, region str
 	}
 	defer resp.Body.Close()
 
-	var songLinkResp songLinkResponse
-
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read response body: %w", err)
@@ -156,6 +186,7 @@ func (s *SongLinkClient) GetAllURLsFromSpotify(spotifyTrackID string, region str
 		return nil, fmt.Errorf("API returned empty response")
 	}
 
+	var songLinkResp songLinkResponse
 	if err := json.Unmarshal(body, &songLinkResp); err != nil {
 		bodyStr := string(body)
 		if len(bodyStr) > 200 {
@@ -164,100 +195,76 @@ func (s *SongLinkClient) GetAllURLsFromSpotify(spotifyTrackID string, region str
 		return nil, fmt.Errorf("failed to decode response: %w (response: %s)", err, bodyStr)
 	}
 
-	urls := &SongLinkURLs{}
+	result := &SongLinkResult{}
 
-	if tidalLink, ok := songLinkResp.LinksByPlatform["tidal"]; ok && tidalLink.URL != "" {
-		urls.TidalURL = tidalLink.URL
-		fmt.Printf("✓ Tidal URL found\n")
+	if link, ok := songLinkResp.LinksByPlatform["tidal"]; ok && link.URL != "" {
+		result.TidalURL = link.URL
+		fmt.Printf("Found Tidal URL\n")
 	}
 
-	if amazonLink, ok := songLinkResp.LinksByPlatform["amazonMusic"]; ok && amazonLink.URL != "" {
-		urls.AmazonURL = amazonLink.URL
-		fmt.Printf("✓ Amazon URL found\n")
+	if link, ok := songLinkResp.LinksByPlatform["amazonMusic"]; ok && link.URL != "" {
+		result.AmazonURL = link.URL
+		fmt.Printf("Found Amazon URL\n")
 	}
 
-	if deezerLink, ok := songLinkResp.LinksByPlatform["deezer"]; ok && deezerLink.URL != "" {
-		if isrc, err := s.getDeezerISRC(deezerLink.URL); err == nil && isrc != "" {
-			urls.ISRC = isrc
+	if link, ok := songLinkResp.LinksByPlatform["deezer"]; ok && link.URL != "" {
+		result.DeezerURL = link.URL
+	}
+
+	return result, nil
+}
+
+func (r *SongLinkResult) FetchISRC(client *http.Client) error {
+	if r.DeezerURL == "" {
+		return fmt.Errorf("no Deezer URL available to fetch ISRC")
+	}
+
+	var trackID string
+	if strings.Contains(r.DeezerURL, "/track/") {
+		parts := strings.Split(r.DeezerURL, "/track/")
+		if len(parts) > 1 {
+			trackID = strings.Split(parts[1], "?")[0]
+			trackID = strings.TrimSpace(trackID)
 		}
 	}
 
-	if urls.TidalURL == "" && urls.AmazonURL == "" {
-		return nil, fmt.Errorf("no streaming URLs found")
+	if trackID == "" {
+		return fmt.Errorf("could not extract track ID from Deezer URL: %s", r.DeezerURL)
 	}
 
-	return urls, nil
-}
+	apiURL := fmt.Sprintf("https://api.deezer.com/track/%s", trackID)
 
-func (s *SongLinkClient) CheckTrackAvailability(spotifyTrackID string) (*TrackAvailability, error) {
-	s.waitForRateLimit()
-
-	apiURL := buildSongLinkAPIURL(spotifyTrackID, "")
-
-	req, err := http.NewRequest("GET", apiURL, nil)
+	resp, err := client.Get(apiURL)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-
-	fmt.Printf("Checking availability for track: %s\n", spotifyTrackID)
-
-	resp, err := s.doWithRetry(req)
-	if err != nil {
-		return nil, fmt.Errorf("failed to check availability: %w", err)
+		return fmt.Errorf("failed to call Deezer API: %w", err)
 	}
 	defer resp.Body.Close()
 
-	var songLinkResp songLinkResponse
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
+	if resp.StatusCode != 200 {
+		return fmt.Errorf("Deezer API returned status %d", resp.StatusCode)
 	}
 
-	if len(body) == 0 {
-		return nil, fmt.Errorf("API returned empty response")
+	var deezerTrack struct {
+		ID    int64  `json:"id"`
+		ISRC  string `json:"isrc"`
+		Title string `json:"title"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&deezerTrack); err != nil {
+		return fmt.Errorf("failed to decode Deezer API response: %w", err)
 	}
 
-	if err := json.Unmarshal(body, &songLinkResp); err != nil {
-		bodyStr := string(body)
-		if len(bodyStr) > 200 {
-			bodyStr = bodyStr[:200] + "..."
-		}
-		return nil, fmt.Errorf("failed to decode response: %w (response: %s)", err, bodyStr)
+	if deezerTrack.ISRC == "" {
+		return fmt.Errorf("ISRC not found in Deezer API response for track %s", trackID)
 	}
 
-	availability := &TrackAvailability{
-		SpotifyID: spotifyTrackID,
-	}
-
-	if tidalLink, ok := songLinkResp.LinksByPlatform["tidal"]; ok && tidalLink.URL != "" {
-		availability.Tidal = true
-		availability.TidalURL = tidalLink.URL
-	}
-
-	if amazonLink, ok := songLinkResp.LinksByPlatform["amazonMusic"]; ok && amazonLink.URL != "" {
-		availability.Amazon = true
-		availability.AmazonURL = amazonLink.URL
-	}
-
-	if deezerLink, ok := songLinkResp.LinksByPlatform["deezer"]; ok && deezerLink.URL != "" {
-		deezerURL := deezerLink.URL
-
-		deezerISRC, err := s.getDeezerISRC(deezerURL)
-		if err == nil && deezerISRC != "" {
-			qobuzAvailable := s.checkQobuzAvailability(deezerISRC)
-			availability.Qobuz = qobuzAvailable
-		}
-	}
-
-	return availability, nil
+	fmt.Printf("Found ISRC from Deezer: %s (track: %s)\n", deezerTrack.ISRC, deezerTrack.Title)
+	r.ISRC = deezerTrack.ISRC
+	return nil
 }
 
 func (s *SongLinkClient) checkQobuzAvailability(isrc string) bool {
-	appID := "798273057"
-
-	apiBase, _ := base64.StdEncoding.DecodeString("aHR0cHM6Ly93d3cucW9idXouY29tL2FwaS5qc29uLzAuMi90cmFjay9zZWFyY2g/cXVlcnk9")
-	searchURL := fmt.Sprintf("%s%s&limit=1&app_id=%s", string(apiBase), isrc, appID)
+	qobuzAPIBase, _ := base64.StdEncoding.DecodeString("aHR0cHM6Ly93d3cucW9idXouY29tL2FwaS5qc29uLzAuMi90cmFjay9zZWFyY2g/cXVlcnk9")
+	searchURL := fmt.Sprintf("%s%s&limit=1&app_id=%s", string(qobuzAPIBase), isrc, qobuzAppID)
 
 	resp, err := s.client.Get(searchURL)
 	if err != nil {
@@ -281,86 +288,73 @@ func (s *SongLinkClient) checkQobuzAvailability(isrc string) bool {
 	return searchResp.Tracks.Total > 0
 }
 
-func (s *SongLinkClient) GetDeezerURLFromSpotify(spotifyTrackID string) (string, error) {
-	s.waitForRateLimit()
-
-	apiURL := buildSongLinkAPIURL(spotifyTrackID, "")
-
-	req, err := http.NewRequest("GET", apiURL, nil)
+func (s *SongLinkClient) GetAllURLsFromSpotify(spotifyTrackID string, region string) (*SongLinkURLs, error) {
+	result, err := s.lookup(spotifyTrackID, region)
 	if err != nil {
-		return "", fmt.Errorf("failed to create request: %w", err)
+		return nil, err
 	}
 
-	fmt.Println("Getting Deezer URL from song.link...")
-
-	resp, err := s.doWithRetry(req)
-	if err != nil {
-		return "", fmt.Errorf("failed to get Deezer URL: %w", err)
-	}
-	defer resp.Body.Close()
-
-	var songLinkResp songLinkResponse
-	if err := json.NewDecoder(resp.Body).Decode(&songLinkResp); err != nil {
-		return "", fmt.Errorf("failed to decode response: %w", err)
+	if result.TidalURL == "" && result.AmazonURL == "" {
+		return nil, fmt.Errorf("no streaming URLs found")
 	}
 
-	deezerLink, ok := songLinkResp.LinksByPlatform["deezer"]
-	if !ok || deezerLink.URL == "" {
-		return "", fmt.Errorf("deezer link not found")
+	urls := &SongLinkURLs{
+		TidalURL:  result.TidalURL,
+		AmazonURL: result.AmazonURL,
 	}
 
-	deezerURL := deezerLink.URL
-	fmt.Printf("Found Deezer URL: %s\n", deezerURL)
-	return deezerURL, nil
-}
-
-func (s *SongLinkClient) getDeezerISRC(deezerURL string) (string, error) {
-	var trackID string
-	if strings.Contains(deezerURL, "/track/") {
-		parts := strings.Split(deezerURL, "/track/")
-		if len(parts) > 1 {
-			trackID = strings.Split(parts[1], "?")[0]
-			trackID = strings.TrimSpace(trackID)
+	if result.DeezerURL != "" {
+		if err := result.FetchISRC(s.client); err == nil {
+			urls.ISRC = result.ISRC
 		}
 	}
 
-	if trackID == "" {
-		return "", fmt.Errorf("could not extract track ID from Deezer URL: %s", deezerURL)
-	}
+	return urls, nil
+}
 
-	apiURL := fmt.Sprintf("https://api.deezer.com/track/%s", trackID)
-
-	resp, err := s.client.Get(apiURL)
+func (s *SongLinkClient) CheckTrackAvailability(spotifyTrackID string) (*TrackAvailability, error) {
+	result, err := s.lookup(spotifyTrackID, "")
 	if err != nil {
-		return "", fmt.Errorf("failed to call Deezer API: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		return "", fmt.Errorf("Deezer API returned status %d", resp.StatusCode)
+		return nil, fmt.Errorf("failed to check availability: %w", err)
 	}
 
-	var deezerTrack struct {
-		ID    int64  `json:"id"`
-		ISRC  string `json:"isrc"`
-		Title string `json:"title"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&deezerTrack); err != nil {
-		return "", fmt.Errorf("failed to decode Deezer API response: %w", err)
+	availability := &TrackAvailability{
+		SpotifyID: spotifyTrackID,
 	}
 
-	if deezerTrack.ISRC == "" {
-		return "", fmt.Errorf("ISRC not found in Deezer API response for track %s", trackID)
+	if result.TidalURL != "" {
+		availability.Tidal = true
+		availability.TidalURL = result.TidalURL
 	}
 
-	fmt.Printf("Found ISRC from Deezer: %s (track: %s)\n", deezerTrack.ISRC, deezerTrack.Title)
-	return deezerTrack.ISRC, nil
+	if result.AmazonURL != "" {
+		availability.Amazon = true
+		availability.AmazonURL = result.AmazonURL
+	}
+
+	if result.DeezerURL != "" {
+		if err := result.FetchISRC(s.client); err == nil {
+			availability.ISRC = result.ISRC
+			availability.Qobuz = s.checkQobuzAvailability(result.ISRC)
+		}
+	}
+
+	return availability, nil
 }
 
 func (s *SongLinkClient) GetISRC(spotifyID string) (string, error) {
-	deezerURL, err := s.GetDeezerURLFromSpotify(spotifyID)
+	result, err := s.lookup(spotifyID, "")
 	if err != nil {
 		return "", err
 	}
-	return s.getDeezerISRC(deezerURL)
+
+	if result.DeezerURL == "" {
+		return "", fmt.Errorf("deezer link not found")
+	}
+
+	if err := result.FetchISRC(s.client); err != nil {
+		return "", err
+	}
+
+	return result.ISRC, nil
 }

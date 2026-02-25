@@ -333,7 +333,11 @@ func (a *App) DownloadTrack(req DownloadRequest) (DownloadResponse, error) {
 	}
 
 	lyricsChan := make(chan string, 1)
-	isrcChan := make(chan string, 1)
+	type songlinkResult struct {
+		urls *backend.SongLinkURLs
+		err  error
+	}
+	songlinkChan := make(chan songlinkResult, 1)
 
 	if req.SpotifyID != "" {
 		if req.EmbedLyrics {
@@ -353,45 +357,61 @@ func (a *App) DownloadTrack(req DownloadRequest) (DownloadResponse, error) {
 
 		go func() {
 			client := backend.NewSongLinkClient()
-			isrc, _ := client.GetISRC(req.SpotifyID)
-			isrcChan <- isrc
+			urls, err := client.GetAllURLsFromSpotify(req.SpotifyID, "")
+			songlinkChan <- songlinkResult{urls, err}
 		}()
 	} else {
 		close(lyricsChan)
-		close(isrcChan)
+		close(songlinkChan)
+	}
+
+	// Wait for songlink result (needed by all services for ISRC and/or URLs)
+	var isrc string
+	var slResult songlinkResult
+	if req.SpotifyID != "" {
+		slResult = <-songlinkChan
+		if slResult.urls != nil {
+			isrc = slResult.urls.ISRC
+		}
 	}
 
 	switch req.Service {
 	case "amazon":
-
-		downloader := backend.NewAmazonDownloader()
-		if req.ServiceURL != "" {
-			filename, err = downloader.DownloadByURL(req.ServiceURL, req.OutputDir, req.AudioFormat, req.FilenameFormat, req.PlaylistName, req.PlaylistOwner, req.TrackNumber, req.Position, req.TrackName, req.ArtistName, req.AlbumName, req.AlbumArtist, req.ReleaseDate, req.CoverURL, req.SpotifyTrackNumber, req.SpotifyDiscNumber, req.SpotifyTotalTracks, req.EmbedMaxQualityCover, req.SpotifyTotalDiscs, req.Copyright, req.Publisher, spotifyURL, req.UseFirstArtistOnly)
-		} else {
-			filename, err = downloader.DownloadBySpotifyID(req.SpotifyID, req.OutputDir, req.AudioFormat, req.FilenameFormat, req.PlaylistName, req.PlaylistOwner, req.TrackNumber, req.Position, req.TrackName, req.ArtistName, req.AlbumName, req.AlbumArtist, req.ReleaseDate, req.CoverURL, req.SpotifyTrackNumber, req.SpotifyDiscNumber, req.SpotifyTotalTracks, req.EmbedMaxQualityCover, req.SpotifyTotalDiscs, req.Copyright, req.Publisher, spotifyURL, req.UseFirstArtistOnly)
+		amazonURL := req.ServiceURL
+		if amazonURL == "" && slResult.urls != nil {
+			amazonURL = slResult.urls.AmazonURL
+		}
+		if amazonURL == "" {
+			return DownloadResponse{
+				Success: false,
+				Error:   "Amazon Music URL not found",
+			}, fmt.Errorf("amazon Music URL not found via song.link")
 		}
 
+		downloader := backend.NewAmazonDownloader()
+		filename, err = downloader.DownloadByURL(amazonURL, req.OutputDir, req.AudioFormat, req.FilenameFormat, req.PlaylistName, req.PlaylistOwner, req.TrackNumber, req.Position, req.TrackName, req.ArtistName, req.AlbumName, req.AlbumArtist, req.ReleaseDate, req.CoverURL, req.SpotifyTrackNumber, req.SpotifyDiscNumber, req.SpotifyTotalTracks, req.EmbedMaxQualityCover, req.SpotifyTotalDiscs, req.Copyright, req.Publisher, spotifyURL, req.UseFirstArtistOnly, isrc)
+
 	case "tidal":
+		tidalURL := req.ServiceURL
+		if tidalURL == "" && slResult.urls != nil {
+			tidalURL = slResult.urls.TidalURL
+		}
+		if tidalURL == "" {
+			return DownloadResponse{
+				Success: false,
+				Error:   "Tidal URL not found",
+			}, fmt.Errorf("tidal URL not found via song.link")
+		}
+
 		if req.ApiURL == "" || req.ApiURL == "auto" {
 			downloader := backend.NewTidalDownloader("")
-			if req.ServiceURL != "" {
-				filename, err = downloader.DownloadByURLWithFallback(req.ServiceURL, req.OutputDir, req.AudioFormat, req.FilenameFormat, req.TrackNumber, req.Position, req.TrackName, req.ArtistName, req.AlbumName, req.AlbumArtist, req.ReleaseDate, req.UseAlbumTrackNumber, req.CoverURL, req.EmbedMaxQualityCover, req.SpotifyTrackNumber, req.SpotifyDiscNumber, req.SpotifyTotalTracks, req.SpotifyTotalDiscs, req.Copyright, req.Publisher, spotifyURL, req.AllowFallback, req.UseFirstArtistOnly)
-			} else {
-				filename, err = downloader.Download(req.SpotifyID, req.OutputDir, req.AudioFormat, req.FilenameFormat, req.TrackNumber, req.Position, req.TrackName, req.ArtistName, req.AlbumName, req.AlbumArtist, req.ReleaseDate, req.UseAlbumTrackNumber, req.CoverURL, req.EmbedMaxQualityCover, req.SpotifyTrackNumber, req.SpotifyDiscNumber, req.SpotifyTotalTracks, req.SpotifyTotalDiscs, req.Copyright, req.Publisher, spotifyURL, req.AllowFallback, req.UseFirstArtistOnly)
-			}
+			filename, err = downloader.DownloadByURLWithFallback(tidalURL, req.OutputDir, req.AudioFormat, req.FilenameFormat, req.TrackNumber, req.Position, req.TrackName, req.ArtistName, req.AlbumName, req.AlbumArtist, req.ReleaseDate, req.UseAlbumTrackNumber, req.CoverURL, req.EmbedMaxQualityCover, req.SpotifyTrackNumber, req.SpotifyDiscNumber, req.SpotifyTotalTracks, req.SpotifyTotalDiscs, req.Copyright, req.Publisher, spotifyURL, req.AllowFallback, req.UseFirstArtistOnly, isrc)
 		} else {
 			downloader := backend.NewTidalDownloader(req.ApiURL)
-			if req.ServiceURL != "" {
-				filename, err = downloader.DownloadByURL(req.ServiceURL, req.OutputDir, req.AudioFormat, req.FilenameFormat, req.TrackNumber, req.Position, req.TrackName, req.ArtistName, req.AlbumName, req.AlbumArtist, req.ReleaseDate, req.UseAlbumTrackNumber, req.CoverURL, req.EmbedMaxQualityCover, req.SpotifyTrackNumber, req.SpotifyDiscNumber, req.SpotifyTotalTracks, req.SpotifyTotalDiscs, req.Copyright, req.Publisher, spotifyURL, req.AllowFallback, req.UseFirstArtistOnly)
-			} else {
-				filename, err = downloader.Download(req.SpotifyID, req.OutputDir, req.AudioFormat, req.FilenameFormat, req.TrackNumber, req.Position, req.TrackName, req.ArtistName, req.AlbumName, req.AlbumArtist, req.ReleaseDate, req.UseAlbumTrackNumber, req.CoverURL, req.EmbedMaxQualityCover, req.SpotifyTrackNumber, req.SpotifyDiscNumber, req.SpotifyTotalTracks, req.SpotifyTotalDiscs, req.Copyright, req.Publisher, spotifyURL, req.AllowFallback, req.UseFirstArtistOnly)
-			}
+			filename, err = downloader.DownloadByURL(tidalURL, req.OutputDir, req.AudioFormat, req.FilenameFormat, req.TrackNumber, req.Position, req.TrackName, req.ArtistName, req.AlbumName, req.AlbumArtist, req.ReleaseDate, req.UseAlbumTrackNumber, req.CoverURL, req.EmbedMaxQualityCover, req.SpotifyTrackNumber, req.SpotifyDiscNumber, req.SpotifyTotalTracks, req.SpotifyTotalDiscs, req.Copyright, req.Publisher, spotifyURL, req.AllowFallback, req.UseFirstArtistOnly, isrc)
 		}
 
 	case "qobuz":
-
-		fmt.Println("Waiting for ISRC (Qobuz dependency)...")
-		isrc := <-isrcChan
 		downloader := backend.NewQobuzDownloader()
 		quality := req.AudioFormat
 		if quality == "" {
