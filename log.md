@@ -1,0 +1,231 @@
+- Track 9 (豫告 - 物語シリーズ): track not available on tidal
+- Track 10 (表裏 - 物語シリーズ): track not available on tidal
+- Track 15 (Cloud Factory - Danny Jacob): failed to get streaming URLs: API returned status 400
+- Track 51 (mouth to mouth - Peyton Marie): failed to get streaming URLs: API returned status 400
+- Track 74 (Coyote, My Little Brother - Spotify Singles - Mitski): track not available on tidal
+- Track 104 (Three of Swords - Ratwyfe): failed to get streaming URLs: API returned status 400
+- Track 217 (虚像のCarousel - Mori Calliope;Reol): track not available on tidal
+- Track 264 (十面相 feat.GUMI - YM;GUMI): track not available on tidal
+- Track 461 (ゴチャゴチャうるせー！ - Owata-P): track not available on tidal
+- Track 466 (Dazai Ah - Dazai Osamu;Chika Fujiwara): failed to get download URL (HI_RES & LOSSLESS both failed): all 5 APIs failed. Last error: HTTP 403
+- Track 467 (Nippon Egao Hyakkei - Momokurotei Ichimon): track not available on tidal
+- Track 476 (Daloy Polizei - Geoff Berner): failed to get download URL (HI_RES & LOSSLESS both failed): all 5 APIs failed. Last error: HTTP 403
+- Track 501 (Make Believe - Ukuletea): track not available on tidal
+- Track 502 (Smile - Ukuletea): track not available on tidal
+- Track 601 (fast love - 物語シリーズ): track not available on tidal
+- Track 605 (Would You Be So Kind - dodie): failed to get download URL (HI_RES & LOSSLESS both failed): all 5 APIs failed. Last error: HTTP 403
+- Track 646 (オレンジミント - 物語シリーズ): track not available on tidal
+- Track 653 (etoile et toi [edition le blanc] - 物語シリーズ): track not available on tidal
+- Track 718 (Summer's End - Spotify Singles - Phoebe Bridgers;Maria Taylor): track not available on tidal
+- Track 741 (恋待かぐや - ClariS): track not available on tidal
+- Track 743 (Dancing Through Life - From "Wicked" Original Broadway Cast Recording/2003 - Stephen Schwartz;Stephen Oremus;Greg Wells;Jack Dolman;Dominick Amendum;Norbert Leo Butz;Kristin Chenoweth;Christopher Fitzgerald;Michelle Federer;Idina Menzel): track not available on tidal
+- Track 751 (Balloon in the City - Cheers Elephant): track not available on tidal
+- Track 752 (Little Dog - Cheers Elephant): track not available on tidal
+- Track 753 (Like Wind Blows Fire - Cheers Elephant): track not available on tidal
+- Track 754 (Get Ya! - Cheers Elephant): track not available on tidal
+- Track 755 (Thought and Commonsense - Cheers Elephant): track not available on tidal
+- Track 756 (Leaves - Cheers Elephant): track not available on tidal
+- Track 757 (Party On Darwin - Cheers Elephant): track not available on tidal
+- Track 758 (Doin' It, Right - Cheers Elephant): track not available on tidal
+- Track 759 (Falling Out - Cheers Elephant): track not available on tidal
+- Track 760 (Peoples - Cheers Elephant): track not available on tidal
+- Track 775 (Free Fallin - The Pains Of Being Pure At Heart): track not available on tidal
+- Track 776 (Wont Back Down - The Pains Of Being Pure At Heart): track not available on tidal
+- Track 777 (Love Is a Long Road - The Pains Of Being Pure At Heart): track not available on tidal
+- Track 778 (Face in the Crowd - The Pains Of Being Pure At Heart): track not available on tidal
+- Track 779 (Runnin Down a Dream - The Pains Of Being Pure At Heart): track not available on tidal
+- Track 780 (Feel a Whole Lot Better - The Pains Of Being Pure At Heart): track not available on tidal
+- Track 781 (Yer so Bad - The Pains Of Being Pure At Heart): track not available on tidal
+- Track 782 (Depending on You - The Pains Of Being Pure At Heart): track not available on tidal
+- Track 783 (Apartment Song - The Pains Of Being Pure At Heart): track not available on tidal
+- Track 784 (Alright for Now - The Pains Of Being Pure At Heart): track not available on tidal
+- Track 785 (A Mind With a Heart of Its Own - The Pains Of Being Pure At Heart): track not available on tidal
+- Track 786 (Zombie Zoo - The Pains Of Being Pure At Heart): track not available on tidal
+- Track 797 (Our Love Is Here To Stay - Billie Holiday): failed to get download URL (HI_RES & LOSSLESS both failed): all 5 APIs failed. Last error: HTTP 403
+- Track 924 (木枯らしセンティメント（戦場ヶ原ひたぎ・貝木泥舟バージョン） - 物語シリーズ): track not available on tidal
+- Track 925 (もうそう☆えくすぷれす - 物語シリーズ): track not available on tidal
+- Track 926 (花痕 -shirushi- - 河野 マリナ): track not available on tidal
+- Track 927 (chocolate insomnia - 物語シリーズ): track not available on tidal
+- Track 928 (白金ディスコ - 物語シリーズ): track not available on tidal
+- Track 929 (二言目 - 物語シリーズ): track not available on tidal
+- Track 930 (帰り道 - 物語シリーズ): track not available on tidal
+- Track 931 (marshmallow justice - 物語シリーズ): track not available on tidal
+- Track 932 (恋愛サーキュレーション - 物語シリーズ): track not available on tidal
+- Track 933 (君の知らない物語 - supercell): track not available on tidal
+- Track 934 (staple stable - 物語シリーズ): track not available on tidal
+- Track 935 (sugar sweet nightmare - 物語シリーズ): track not available on tidal
+- Track 937 (ambivalent world - 物語シリーズ): track not available on tidal
+- Track 938 (happy bite - 物語シリーズ): track not available on tidal
+- Track 939 (white lies - 物語シリーズ): track not available on tidal
+- Track 940 (mein schatz - 物語シリーズ): track not available on tidal
+- Track 943 (No, Thank You! (From "K-On!!") - Ho - Kago Tea Time): track not available on tidal
+- Track 949 (GO! GO! MANIAC - Ho - Kago Tea Time): track not available on tidal
+- Track 986 (Cryin' - The Shacks): failed to get streaming URLs: API returned status 400
+- Track 987 (Horrible Theme - Instrumental): track not available on tidal
+- Track 988 (My Freeze Ray - Neil Patrick Harris): track not available on tidal
+- Track 990 (Caring Hands - Felicia Day): track not available on tidal
+- Track 991 (A Man's Gotta Do - Neil Patrick Harris;Nathan Fillion;Felicia Day): track not available on tidal
+- Track 992 (My Eyes - Neil Patrick Harris;Felicia Day): track not available on tidal
+- Track 994 (Penny's Song - Felicia Day): track not available on tidal
+- Track 995 (Brand New Day - Neil Patrick Harris): track not available on tidal
+- Track 998 (Slipping - Neil Patrick Harris): track not available on tidal
+- Track 999 (Everything You Ever - Neil Patrick Harris): track not available on tidal
+- Track 1001 (Birds - The Shacks): failed to get streaming URLs: API returned status 400
+- Track 1002 (All Day Long - The Shacks): failed to get streaming URLs: API returned status 400
+- Track 1021 (Paradisus-Paradoxum - MYTH & ROID): failed to get download URL (HI_RES & LOSSLESS both failed): all 5 APIs failed. Last error: HTTP 404
+- Track 1086 (SAY - White Denim): failed to get download URL (HI_RES & LOSSLESS both failed): all 5 APIs failed. Last error: HTTP 403
+- Track 1092 (SHADOW MONSTER - Asako Toki): track not available on tidal
+- Track 1104 (Diamond Day - Vashti Bunyan): track not available on tidal
+- Track 1121 (DD - White Denim): failed to get download URL (HI_RES & LOSSLESS both failed): all 5 APIs failed. Last error: HTTP 403
+- Track 1124 (Can You Feel The Love Tonight - From "Lion King" - Nana Ou-Yang): track not available on tidal
+- Track 1139 (SLYME - White Denim): failed to get download URL (HI_RES & LOSSLESS both failed): all 5 APIs failed. Last error: HTTP 403
+- Track 1145 (STRIKE GOLD - White Denim): failed to get download URL (HI_RES & LOSSLESS both failed): all 5 APIs failed. Last error: HTTP 403
+- Track 1188 (MIRRORED TOO - White Denim): failed to get download URL (HI_RES & LOSSLESS both failed): all 5 APIs failed. Last error: HTTP 403
+- Track 1189 (BS - White Denim): failed to get download URL (HI_RES & LOSSLESS both failed): all 5 APIs failed. Last error: HTTP 403
+- Track 1190 (RIVER 2 - White Denim): failed to get streaming URLs: API returned status 400
+- Track 1191 (MIRRORED 3 - White Denim): failed to get streaming URLs: API returned status 400
+- Track 1192 (MIRRORED 2 - White Denim): failed to get streaming URLs: API returned status 400
+- Track 1230 (Hito ni Yasashiku - TV Size Ver. - The Rolling Girls): track not available on tidal
+- Track 1304 (少年ハート - Home Made Kazoku): track not available on tidal
+- Track 1307 (ユニゾン - ClariS): track not available on tidal
+- Track 1340 (Synchrogazer-Aufwachen Form- - Nana Mizuki): track not available on tidal
+- Track 1351 (St. Sebastian - of Montreal): failed to get streaming URLs: API returned status 502
+- Track 1369 (Dark Saturday - Dirt Road Edition - Metric): failed to get download URL (HI_RES & LOSSLESS both failed): all 5 APIs failed. Last error: HTTP 403
+- Track 1388 (Jellicle Songs For Jellicle Cats - From The Motion Picture Soundtrack "Cats" - Cast Of The Motion Picture "Cats"): track not available on tidal
+- Track 1398 (Back To Roslyn - Daniel Lopatin): track not available on tidal
+- Track 1412 (太陽の真ん中へ - Bivattchee): track not available on tidal
+- Track 1416 (Catch Me Now I'm Falling - The Kinks): failed to get download URL (HI_RES & LOSSLESS both failed): all 5 APIs failed. Last error: HTTP 403
+- Track 1424 (Misbehavin' - Aimee-Leigh;BABY BILLY): track not available on tidal
+- Track 1427 (Tonight You Belong To Me - Acoustic Version - Nicole Sidney): track not available on tidal
+- Track 1445 (You Need To Calm Down - Recorded At Abbey Road Studios, London - YONAKA): track not available on tidal
+- Track 1470 (時の流れに身をまかせ (我只在乎你 日文版) - Joanna Wang): track not available on tidal
+- Track 1472 (Wonderwall - Tengger Cavalry): track not available on tidal
+- Track 1509 (最終列車は25時 - Lamp): track not available on tidal
+- Track 1514 (Breathe - Elisabeth Moss;Agyness Deyn;Gayle Rankin;Cara Delevingne;Ashley Benson;Dylan Gelula;Amber Heard): track not available on tidal
+- Track 1515 (Control - Elisabeth Moss): failed to get download URL (HI_RES & LOSSLESS both failed): all 5 APIs failed. Last error: HTTP 403
+- Track 1552 (You You And Especially You - Bobby Hackett): failed to get streaming URLs: API returned status 400
+- Track 1553 (I Surrender Dear - Bobby Hackett): failed to get streaming URLs: API returned status 400
+- Track 1554 (Clarinet Marmalade - Bobby Hackett): failed to get streaming URLs: API returned status 400
+- Track 1555 (If Dreams Come True - Bobby Hackett): failed to get streaming URLs: API returned status 400
+- Track 1556 (Ja-Da - Bobby Hackett): failed to get streaming URLs: API returned status 400
+- Track 1559 (Dardanella - Bobby Hackett): failed to get streaming URLs: API returned status 400
+- Track 1565 (Doin' The New Low-Down - Bobby Hackett): track not available on tidal
+- Track 1571 (Draggin' the Line - R.E.M.): track not available on tidal
+- Track 1609 (ニュータイプトーキョー - Reol): track not available on tidal
+- Track 1610 (B12 - Reol): track not available on tidal
+- Track 1611 (エンドレスライン - Reol): track not available on tidal
+- Track 1612 (LUVORATORRRRRY! - Reol): track not available on tidal
+- Track 1744 (Not Giving up on Love (Orchestral Version) - Sophie Ellis-Bextor): track not available on tidal
+- Track 1755 (アイム・ミー - CHAI): track not available on tidal
+- Track 1756 (ウィンタイム - CHAI): track not available on tidal
+- Track 1783 (Wandering - CUT_): failed to get streaming URLs: API returned status 400
+- Track 1784 (Can’t Escape This Feeling - CUT_): failed to get streaming URLs: API returned status 400
+- Track 1786 (Fever - CUT_;Klangstof): failed to get streaming URLs: API returned status 400
+- Track 1787 (Reach For It - CUT_): failed to get streaming URLs: API returned status 400
+- Track 1789 (Push Me - CUT_;Lawrence Mace): failed to get streaming URLs: API returned status 400
+- Track 1805 (釣った魚にエサやれ - MOSHIMO): track not available on tidal
+- Track 1807 (Last Lion of Albion - Neko Case): track not available on tidal
+- Track 1874 (ようこそジャパリパークへ - Masayoshi Oishi): track not available on tidal
+- Track 1875 (La Dépression - Pizzicato Five;Grand-Prix): failed to get streaming URLs: API returned status 400
+- Track 1877 (Places Places - Serengeti;Jade): track not available on tidal
+- Track 1910 (Douse Natsu Nara Bateteminai? - Mashinomi): track not available on tidal
+- Track 1929 (Good - Moaning Lisa): failed to get download URL (HI_RES & LOSSLESS both failed): all 5 APIs failed. Last error: HTTP 403
+- Track 1933 (これらの道路は金で舗装されていません - Haircuts for Men): failed to get streaming URLs: API returned status 400
+- Track 1934 (優しく時に起毛 - Haircuts for Men): failed to get streaming URLs: API returned status 400
+- Track 1935 (咳血 - Haircuts for Men): failed to get streaming URLs: API returned status 400
+- Track 1936 (空気のためにあえぎ、私の魂は、その殻を残します - Haircuts for Men): failed to get streaming URLs: API returned status 400
+- Track 1937 (明るい光と蒸気のフラッシュ - Haircuts for Men): failed to get streaming URLs: API returned status 400
+- Track 1990 (Posing in Bondage - Japanese Breakfast): failed to get download URL (HI_RES & LOSSLESS both failed): all 5 APIs failed. Last error: HTTP 403
+- Track 2107 (CORRESPONDENCE: Revenge of the Nerds - Jens Lekman): track not available on tidal
+- Track 2126 (No One - Piano Version - Jenn Champion): failed to get download URL (HI_RES & LOSSLESS both failed): all 5 APIs failed. Last error: HTTP 403
+- Track 2226 (Army Of Me - Sucker Punch Remix - Björk): failed to get streaming URLs: API returned status 400
+- Track 2228 (I Want It All / We Will Rock You Mash-Up - Queen): failed to get streaming URLs: API returned status 400
+- Track 2341 (Selfie Pulla (From "Kaththi") - Vijay;Sunidhi Chauhan): track not available on tidal
+- Track 2344 (Renai Circulation - Kana Hanazawa): failed to get download URL (HI_RES & LOSSLESS both failed): all 5 APIs failed. Last error: HTTP 403
+- Track 2346 (And Then She Kissed Me - St. Vincent): failed to get download URL (HI_RES & LOSSLESS both failed): all 5 APIs failed. Last error: HTTP 403
+- Track 2373 (Aquarius Dipshit - Eliza Juno): failed to get streaming URLs: API returned status 400
+- Track 2374 (Frank <3 - Eliza Juno): failed to get streaming URLs: API returned status 400
+- Track 2375 (phantasmagoria - Eliza Juno): failed to get streaming URLs: API returned status 400
+- Track 2376 (Chering Is Caring - Eliza Juno): failed to get streaming URLs: API returned status 400
+- Track 2384 (Hi I'm Terrible - Eliza Juno): failed to get streaming URLs: API returned status 400
+- Track 2403 (Sadness - Enigma): failed to get streaming URLs: API returned status 400
+- Track 2404 (The Planets, Op. 32: Mars, the Bringer of War - Gustav Holst;SWR Vokalensemble Stuttgart;Staatsopernchor Stuttgart;Stuttgart Radio Symphony Orchestra;Sir Roger Norrington): track not available on tidal
+- Track 2411 (Sailor's Hornpipe Medley - Charles Dalmaine): failed to get streaming URLs: API returned status 400
+- Track 2414 (The Happy Wanderer - Myron Floren): track not available on tidal
+- Track 2424 (The Nutcracker, Op. 71, Act II: No. 12, Divertissement: d. Trepak (Russian Dance) - Pyotr Ilyich Tchaikovsky;London Symphony Orchestra;Antal Doráti): track not available on tidal
+- Track 2429 (Scotland the Brave - The Scottish Bagpipes Highland Pipes;The Gordon Highlanders): track not available on tidal
+- Track 2431 (Bizet: Carmen, Act 1: Habanera. "L'amour est un oiseau rebelle" (Carmen) - Georges Bizet;Maria Callas;Georges Prêtre;French National Radio Orchestra): track not available on tidal
+- Track 2433 (III. Minuetto - Trio - Luigi Boccherini;Eckart Runge;Cuarteto Casals): track not available on tidal
+- Track 2443 (The Blue Danube - Johann Strauss II;Eugene Ormandy): track not available on tidal
+- Track 2446 (The Four Seasons, Violin Concerto in E Major, Op. 8 No. 1, RV 269 "Spring": I. Allegro - Antonio Vivaldi;Igor Malinovsky;Dresdner Residence Orchestra): track not available on tidal
+- Track 2451 (The Great Escape - Theme from the Motion Picture (Remix) [feat. Dominik Hauser] - Elmer Bernstein;Dominik Hauser): failed to get download URL (HI_RES & LOSSLESS both failed): all 5 APIs failed. Last error: HTTP 403
+- Track 2454 (Heart and Soul - Hoagy Carmichael): failed to get streaming URLs: API returned status 400
+- Track 2458 (Mas Que Nada - Sergio Mendes & Brasil '66): track not available on tidal
+- Track 2486 (Pathway - Kevin Penkin): track not available on tidal
+- Track 2487 (Tomorrow - Kevin Penkin): track not available on tidal
+- Track 2493 (Los Ageless - Recorded At Spotify Studios NYC - St. Vincent): track not available on tidal
+- Track 2537 (2000 Miles - The Pretenders): failed to get streaming URLs: API returned status 400
+- Track 2548 (Debora - T. Rex): track not available on tidal
+- Track 2577 (Just Hangin Out - Damien Carter): track not available on tidal
+- Track 2634 (A Little Bit Like Fun - Sparks): failed to get download URL (HI_RES & LOSSLESS both failed): all 5 APIs failed. Last error: HTTP 403
+- Track 2635 (Life With The Macbeths - Sparks): failed to get download URL (HI_RES & LOSSLESS both failed): all 5 APIs failed. Last error: HTTP 403
+- Track 2647 (Your Heart Is a Muscle the Size of Your Fist - Live - Ramshackle Glory): track not available on tidal
+- Track 2654 (Po Lazarus - From "O Brother, Where Art Thou?" Soundtrack - James Carter and The Prisoners): failed to get streaming URLs: API returned status 400
+- Track 2660 (I Am A Man Of Constant Sorrow - From “O Brother, Where Art Thou” Soundtrack / Instrumental - Norman Blake): track not available on tidal
+- Track 2666 (I Am A Man Of Constant Sorrow - From “O Brother, Where Art Thou” Soundtrack / Instrumental - John Hartford): track not available on tidal
+- Track 2671 (Lonesome Valley - From “O Brother, Where Art Thou” Soundtrack - The Fairfield Four): track not available on tidal
+- Track 2702 (Father Christmas - Pop Noir;N/A): failed to get streaming URLs: API returned status 400
+- Track 2703 (Bang The Drum Slowly - Pop Noir): failed to get streaming URLs: API returned status 400
+- Track 2704 (In Like a Lion - Pop Noir): failed to get streaming URLs: API returned status 400
+- Track 2780 (The Woman You Want Her to Be - The Blow): failed to get streaming URLs: API returned status 400
+- Track 2821 (1899-12-31 02:45:00 - Elliott Smith): track not available on tidal
+- Track 2857 (Oh She Deleter :( - Grandaddy): failed to get streaming URLs: API returned status 400
+- Track 2891 (TEEN TITANS THEME - Puffy AmiYumi): failed to get download URL (HI_RES & LOSSLESS both failed): all 5 APIs failed. Last error: HTTP 403
+- Track 2892 (ワールドイズマイン -MIKUNOPOLIS in LOS ANGELES Live- - ryo (supercell)): track not available on tidal
+- Track 2895 (Kimijyanakya Damemitai - Masayoshi Oishi): track not available on tidal
+- Track 2896 (Ring of Drunker - Masayoshi Oishi): track not available on tidal
+- Track 2897 (Fukashin Ryouiki Destroyer - Masayoshi Oishi): track not available on tidal
+- Track 2904 (カラフル - ClariS): track not available on tidal
+- Track 2906 (ナイショの話 - ClariS): track not available on tidal
+- Track 2907 (コネクト - ClariS): track not available on tidal
+- Track 2909 (スパークル - movie ver. - RADWIMPS): track not available on tidal
+- Track 2910 (なんでもないや - movie ver. - RADWIMPS): track not available on tidal
+- Track 2911 (前前前世 - movie ver. - RADWIMPS): track not available on tidal
+- Track 2916 (Puttin' On the Ritz (D.Mark'J & Angel See Remix) - Tolemada Project): track not available on tidal
+- Track 2943 (Paint It Black - Live At The Beacon Theatre, New York / 2006 - The Rolling Stones): failed to get streaming URLs: API returned status 400
+- Track 3044 (Debora - T. Rex): track not available on tidal
+- Track 3049 (The Edge - David McCallum): track not available on tidal
+- Track 3054 (Intermission - Blur): track not available on tidal
+- Track 3056 (Radar Love - Golden Earring): track not available on tidal
+- Track 3095 (ジョジョ〜その血の運命 - Hiroaki Tommy Tominaga): track not available on tidal
+- Track 3096 (Bloody Stream - Coda): track not available on tidal
+- Track 3097 (Deal with the devil - Tia): track not available on tidal
+- Track 3098 (the WORLD - NIGHTMARE): track not available on tidal
+- Track 3138 (Could You? - Dyalla): track not available on tidal
+- Track 3261 (Love Will Set You Free - Carrie Cleveland): failed to get streaming URLs: API returned status 400
+- Track 3334 (Sing Me Spanish Techno - The New Pornographers): failed to get streaming URLs: API returned status 400
+- Track 3563 (這不是很令人興奮嗎？ - Joanna Wang): track not available on tidal
+- Track 3599 (Parade - Susumu Hirasawa): failed to get download URL (HI_RES & LOSSLESS both failed): all 5 APIs failed. Last error: HTTP 403
+- Track 3610 (Riff Off: Mickey/Like A Virgin/Hit Me With Your Best Shot/S&M/Let’s Talk About Sex/I’ll Make Love To You/Feels Like The First Time/No Diggity - The Barden Bellas;The Treblemakers;The Bu Harmonics): track not available on tidal
+- Track 3616 (Bellas Finals: Price Tag/Don’t You (Forget About Me)/Give Me Everything/Just The Way You Are/Party In The U.S.A./Turn The Beat Around - The Barden Bellas): track not available on tidal
+- Track 3631 (Material Girls Medley: Bills Bills Bills / Dear Future Husband / Cabaret-Money / Bitch Better Have My Money / Dirty Cash (Money Talks) / Material Girl / Diamonds Are a Girl's Best Friend - The Puppini Sisters): track not available on tidal
+- Track 3722 (I'm Over You - Rainbow Arabia): failed to get streaming URLs: API returned status 400
+- Track 3723 (Mixolydian - Rainbow Arabia): failed to get streaming URLs: API returned status 400
+- Track 3725 (Juneau - Rainbow Arabia): failed to get streaming URLs: API returned status 400
+- Track 3757 (MyHope (Live) - Molly Lewis): track not available on tidal
+- Track 3758 (I Pity the Fool (Live) - Molly Lewis): track not available on tidal
+- Track 3759 (My Bioluminescent Boy (Live) - Molly Lewis): track not available on tidal
+- Track 3760 (It All Makes Sense at the End (Live) - Molly Lewis): track not available on tidal
+- Track 3761 (An Open Letter to Stephen Fry (Live) - Molly Lewis): track not available on tidal
+- Track 3762 (Road Trip (Live) - Molly Lewis): track not available on tidal
+- Track 3763 (Our American Cousin (Live) - Molly Lewis): failed to get streaming URLs: API returned status 400
+- Track 3782 (Untitled - Black Moth Super Rainbow): failed to
+- Track 3859 (Tired - Edward Penfold): track not available on tidal
+- Track 3860 (Song for Joan (PIANO SONG) - Edward Penfold): track not available on tidal
+- Track 3891 (Destination - Env): track not available on tidal
+- Track 3892 (Flare - Env): track not available on tidal
+- Track 3893 (This Sound - Env): track not available on tidal
+- Track 3894 (Darkas - Env): track not available on tidal
+- Track 3895 (Firefrost - Env): track not available on tidal
+- Track 3896 (Shakestopper - Env): track not available on tidal
+- Track 3897 (Bestammelse - Env): track not available on tidal
