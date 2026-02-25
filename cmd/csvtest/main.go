@@ -23,6 +23,7 @@ type Config struct {
 	StartIndex         int
 	EndIndex           int
 	ParseOnly          bool
+	Yes                bool
 }
 
 func main() {
@@ -99,12 +100,14 @@ func main() {
 	fmt.Printf("   Format: %s\n", config.AudioFormat)
 
 	// Confirm
-	fmt.Print("\nContinue? [y/N]: ")
-	var response string
-	fmt.Scanln(&response)
-	if strings.ToLower(response) != "y" {
-		fmt.Println("Cancelled.")
-		return
+	if !config.Yes {
+		fmt.Print("\nContinue? [y/N]: ")
+		var response string
+		fmt.Scanln(&response)
+		if strings.ToLower(response) != "y" {
+			fmt.Println("Cancelled.")
+			return
+		}
 	}
 
 	// Download tracks
@@ -339,6 +342,7 @@ func parseFlags() Config {
 	flag.IntVar(&config.StartIndex, "start", 0, "Start index (0-based)")
 	flag.IntVar(&config.EndIndex, "end", 0, "End index (0 = all tracks)")
 	flag.BoolVar(&config.ParseOnly, "parse-only", false, "Only parse CSV without downloading")
+	flag.BoolVar(&config.Yes, "yes", false, "Skip confirmation prompt")
 
 	flag.Parse()
 
