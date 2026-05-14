@@ -23,6 +23,8 @@ export interface TrackMetadata {
     artist_id?: string;
     artist_url?: string;
     artists_data?: ArtistSimple[];
+    isrc?: string;
+    upc?: string;
     copyright?: string;
     publisher?: string;
     plays?: string;
@@ -38,6 +40,7 @@ export interface AlbumInfo {
     release_date: string;
     artists: string;
     images: string;
+    upc?: string;
     batch?: string;
 }
 export interface AlbumResponse {
@@ -116,7 +119,7 @@ export interface DownloadRequest {
     album_artist?: string;
     release_date?: string;
     cover_url?: string;
-    api_url?: string;
+    tidal_api_url?: string;
     output_dir?: string;
     audio_format?: string;
     folder_name?: string;
@@ -134,10 +137,13 @@ export interface DownloadRequest {
     spotify_disc_number?: number;
     spotify_total_tracks?: number;
     spotify_total_discs?: number;
+    isrc?: string;
     copyright?: string;
     publisher?: string;
     spotify_url?: string;
     use_first_artist_only?: boolean;
+    use_single_genre?: boolean;
+    embed_genre?: boolean;
 }
 export interface DownloadResponse {
     success: boolean;
@@ -151,9 +157,15 @@ export interface HealthResponse {
     status: string;
     time: string;
 }
+export interface CurrentIPInfo {
+    ip: string;
+    country: string;
+    country_code?: string;
+    source?: string;
+}
 export interface TimeSlice {
     time: number;
-    magnitudes: number[];
+    magnitudes: number[] | Float32Array;
 }
 export interface SpectrumData {
     time_slices: TimeSlice[];
@@ -165,6 +177,7 @@ export interface SpectrumData {
 export interface AnalysisResult {
     file_path: string;
     file_size: number;
+    file_type?: "FLAC" | "MP3" | "M4A" | "AAC";
     sample_rate: number;
     channels: number;
     bits_per_sample: number;
@@ -174,6 +187,10 @@ export interface AnalysisResult {
     dynamic_range: number;
     peak_amplitude: number;
     rms_level: number;
+    codec_mode?: string;
+    bitrate_kbps?: number;
+    total_frames?: number;
+    codec_version?: string;
     spectrum?: SpectrumData;
 }
 export interface LyricsDownloadRequest {
@@ -183,6 +200,7 @@ export interface LyricsDownloadRequest {
     album_name?: string;
     album_artist?: string;
     release_date?: string;
+    isrc?: string;
     output_dir?: string;
     filename_format?: string;
     track_number?: boolean;
@@ -271,4 +289,6 @@ export interface AudioMetadata {
     track_number: number;
     disc_number: number;
     year: string;
+    upc?: string;
+    isrc?: string;
 }

@@ -2,9 +2,7 @@ package backend
 
 import (
 	"bytes"
-	"encoding/base32"
 	"encoding/base64"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -17,9 +15,6 @@ import (
 	"time"
 
 	"sort"
-
-	"github.com/pquerna/otp"
-	"github.com/pquerna/otp/totp"
 )
 
 var SpotifyError = errors.New("spotify error")
@@ -41,56 +36,8 @@ func NewSpotifyClient() *SpotifyClient {
 	}
 }
 
-func (c *SpotifyClient) getTOTPSecret() (int, []byte) {
-	secrets := map[int][]byte{
-		59: {123, 105, 79, 70, 110, 59, 52, 125, 60, 49, 80, 70, 89, 75, 80, 86, 63, 53, 123, 37, 117, 49, 52, 93, 77, 62, 47, 86, 48, 104, 68, 72},
-		60: {79, 109, 69, 123, 90, 65, 46, 74, 94, 34, 58, 48, 70, 71, 92, 85, 122, 63, 91, 64, 87, 87},
-		61: {44, 55, 47, 42, 70, 40, 34, 114, 76, 74, 50, 111, 120, 97, 75, 76, 94, 102, 43, 69, 49, 120, 118, 80, 64, 78},
-	}
-
-	version := 61
-	secretList := secrets[version]
-	return version, secretList
-}
-
 func (c *SpotifyClient) generateTOTP() (string, int, error) {
-	version, secretList := c.getTOTPSecret()
-
-	transformed := make([]byte, len(secretList))
-	for i, b := range secretList {
-		transformed[i] = b ^ byte((i%33)+9)
-	}
-
-	var joined strings.Builder
-	for _, b := range transformed {
-		joined.WriteString(strconv.Itoa(int(b)))
-	}
-
-	hexStr := hex.EncodeToString([]byte(joined.String()))
-	hexBytes, err := hex.DecodeString(hexStr)
-	if err != nil {
-		return "", 0, err
-	}
-
-	secret := base32Encode(hexBytes)
-	secret = strings.TrimRight(secret, "=")
-
-	key, err := otp.NewKeyFromURL(fmt.Sprintf("otpauth://totp/secret?secret=%s", secret))
-	if err != nil {
-		return "", 0, err
-	}
-
-	totpCode, err := totp.GenerateCode(key.Secret(), time.Now())
-	if err != nil {
-		return "", 0, err
-	}
-
-	return totpCode, version, nil
-}
-
-func base32Encode(data []byte) string {
-	b32 := base32.StdEncoding.WithPadding(base32.NoPadding)
-	return b32.EncodeToString(data)
+	return generateSpotifyTOTP(time.Now())
 }
 
 func (c *SpotifyClient) getAccessToken() error {
@@ -112,7 +59,7 @@ func (c *SpotifyClient) getAccessToken() error {
 	q.Add("totpServer", totpCode)
 	req.URL.RawQuery = q.Encode()
 
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36")
 	req.Header.Set("Content-Type", "application/json;charset=UTF-8")
 
 	resp, err := c.client.Do(req)
@@ -149,7 +96,7 @@ func (c *SpotifyClient) getSessionInfo() error {
 		return err
 	}
 
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36")
 
 	for name, value := range c.cookies {
 		req.AddCookie(&http.Cookie{Name: name, Value: value})
@@ -230,7 +177,7 @@ func (c *SpotifyClient) getClientToken() error {
 	req.Header.Set("Authority", "clienttoken.spotify.com")
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36")
 
 	resp, err := c.client.Do(req)
 	if err != nil {
@@ -288,7 +235,7 @@ func (c *SpotifyClient) Query(payload map[string]interface{}) (map[string]interf
 	req.Header.Set("Client-Token", c.clientToken)
 	req.Header.Set("Spotify-App-Version", c.clientVersion)
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36")
 
 	resp, err := c.client.Do(req)
 	if err != nil {
@@ -521,7 +468,7 @@ func extractDuration(ms float64) map[string]interface{} {
 	}
 }
 
-func FilterTrack(data map[string]interface{}, albumFetchData ...map[string]interface{}) map[string]interface{} {
+func FilterTrack(data map[string]interface{}, separator string, albumFetchData ...map[string]interface{}) map[string]interface{} {
 	dataMap := getMap(data, "data")
 	trackData := getMap(dataMap, "trackUnion")
 	if len(trackData) == 0 {
@@ -591,7 +538,7 @@ func FilterTrack(data map[string]interface{}, albumFetchData ...map[string]inter
 		copyrightData := getMap(albumData, "copyright")
 		if len(copyrightData) > 0 {
 			copyrightItems := getSlice(copyrightData, "items")
-			if copyrightItems != nil {
+			if len(copyrightItems) > 0 {
 				for _, item := range copyrightItems {
 					itemMap, ok := item.(map[string]interface{})
 					if !ok {
@@ -610,7 +557,7 @@ func FilterTrack(data map[string]interface{}, albumFetchData ...map[string]inter
 		if len(tracksData) > 0 {
 			discNumbers := make(map[int]bool)
 			trackItems := getSlice(tracksData, "items")
-			if trackItems != nil {
+			if len(trackItems) > 0 {
 				for _, item := range trackItems {
 					itemMap, ok := item.(map[string]interface{})
 					if !ok {
@@ -692,7 +639,7 @@ func FilterTrack(data map[string]interface{}, albumFetchData ...map[string]inter
 
 		albumArtistsString := ""
 		albumLabel := ""
-		if albumFetchDataMap != nil && len(albumFetchDataMap) > 0 {
+		if len(albumFetchDataMap) > 0 {
 			albumUnionData := getMap(getMap(albumFetchDataMap, "data"), "albumUnion")
 			if len(albumUnionData) > 0 {
 				albumArtists := extractArtists(getMap(albumUnionData, "artists"))
@@ -701,7 +648,7 @@ func FilterTrack(data map[string]interface{}, albumFetchData ...map[string]inter
 					for _, artist := range albumArtists {
 						albumArtistNames = append(albumArtistNames, getString(artist, "name"))
 					}
-					albumArtistsString = strings.Join(albumArtistNames, ", ")
+					albumArtistsString = strings.Join(albumArtistNames, separator)
 				}
 				if albumArtistsString == "" {
 					albumArtistsString = getString(albumUnionData, "artists")
@@ -717,7 +664,7 @@ func FilterTrack(data map[string]interface{}, albumFetchData ...map[string]inter
 				for _, artist := range albumArtists {
 					albumArtistNames = append(albumArtistNames, getString(artist, "name"))
 				}
-				albumArtistsString = strings.Join(albumArtistNames, ", ")
+				albumArtistsString = strings.Join(albumArtistNames, separator)
 			}
 		}
 
@@ -751,13 +698,13 @@ func FilterTrack(data map[string]interface{}, albumFetchData ...map[string]inter
 	for _, artist := range artists {
 		artistNames = append(artistNames, getString(artist, "name"))
 	}
-	artistsString := strings.Join(artistNames, ", ")
+	artistsString := strings.Join(artistNames, separator)
 
 	copyrightTexts := []string{}
 	for _, item := range copyrightInfo {
 		copyrightTexts = append(copyrightTexts, getString(item, "text"))
 	}
-	copyrightString := strings.Join(copyrightTexts, ", ")
+	copyrightString := strings.Join(copyrightTexts, GetSeparator())
 
 	discNumber := int(getFloat64(trackData, "discNumber"))
 	if discNumber == 0 {
@@ -838,7 +785,7 @@ func FilterTrack(data map[string]interface{}, albumFetchData ...map[string]inter
 	return filtered
 }
 
-func FilterAlbum(data map[string]interface{}) map[string]interface{} {
+func FilterAlbum(data map[string]interface{}, separator string) map[string]interface{} {
 	dataMap := getMap(data, "data")
 	albumData := getMap(dataMap, "albumUnion")
 	if len(albumData) == 0 {
@@ -850,7 +797,7 @@ func FilterAlbum(data map[string]interface{}) map[string]interface{} {
 	for _, artist := range artists {
 		artistNames = append(artistNames, getString(artist, "name"))
 	}
-	albumArtistsString := strings.Join(artistNames, ", ")
+	albumArtistsString := strings.Join(artistNames, separator)
 
 	coverObj := extractCoverImage(getMap(albumData, "coverArt"))
 	var cover interface{}
@@ -911,7 +858,7 @@ func FilterAlbum(data map[string]interface{}) map[string]interface{} {
 			for _, artist := range trackArtists {
 				trackArtistNames = append(trackArtistNames, getString(artist, "name"))
 			}
-			trackArtistsString := strings.Join(trackArtistNames, ", ")
+			trackArtistsString := strings.Join(trackArtistNames, separator)
 
 			trackURI := getString(track, "uri")
 			trackID := ""
@@ -979,7 +926,7 @@ func FilterAlbum(data map[string]interface{}) map[string]interface{} {
 	return filtered
 }
 
-func FilterPlaylist(data map[string]interface{}) map[string]interface{} {
+func FilterPlaylist(data map[string]interface{}, separator string) map[string]interface{} {
 	dataMap := getMap(data, "data")
 	playlistData := getMap(dataMap, "playlistV2")
 	if len(playlistData) == 0 {
@@ -993,21 +940,9 @@ func FilterPlaylist(data map[string]interface{}) map[string]interface{} {
 		avatarData := getMap(ownerData, "avatar")
 		if len(avatarData) > 0 {
 			sources := getSlice(avatarData, "sources")
-			if sources != nil {
-				for _, source := range sources {
-					sourceMap, ok := source.(map[string]interface{})
-					if !ok {
-						continue
-					}
-					if getFloat64(sourceMap, "width") == 300 {
-						avatarURL = getString(sourceMap, "url")
-						break
-					}
-				}
-				if avatarURL == nil && len(sources) > 0 {
-					if firstSource, ok := sources[0].(map[string]interface{}); ok {
-						avatarURL = getString(firstSource, "url")
-					}
+			if len(sources) > 0 {
+				if firstSource, ok := sources[0].(map[string]interface{}); ok {
+					avatarURL = getString(firstSource, "url")
 				}
 			}
 		}
@@ -1111,7 +1046,7 @@ func FilterPlaylist(data map[string]interface{}) map[string]interface{} {
 			for _, artist := range trackArtists {
 				trackArtistNames = append(trackArtistNames, getString(artist, "name"))
 			}
-			artistsString := strings.Join(trackArtistNames, ", ")
+			artistsString := strings.Join(trackArtistNames, separator)
 
 			trackDurationMs := getFloat64(getMap(trackData, "trackDuration"), "totalMilliseconds")
 			durationObj := extractDuration(trackDurationMs)
@@ -1157,7 +1092,7 @@ func FilterPlaylist(data map[string]interface{}) map[string]interface{} {
 					for _, artist := range albumArtists {
 						albumArtistNames = append(albumArtistNames, getString(artist, "name"))
 					}
-					albumArtistsString = strings.Join(albumArtistNames, ", ")
+					albumArtistsString = strings.Join(albumArtistNames, separator)
 				}
 			}
 
@@ -1327,11 +1262,11 @@ func extractDiscographyItems(itemsData map[string]interface{}) []map[string]inte
 }
 
 func stripHTMLTags(s string) string {
-	re := regexp.MustCompile(`<[^>]*>`)
+	re := regexp.MustCompile(`(?s)<[^>]*>`)
 	return re.ReplaceAllString(s, "")
 }
 
-func FilterArtist(data map[string]interface{}) map[string]interface{} {
+func FilterArtist(data map[string]interface{}, separator string) map[string]interface{} {
 	dataMap := getMap(data, "data")
 	artistData := getMap(dataMap, "artistUnion")
 	if len(artistData) == 0 {
@@ -1460,7 +1395,7 @@ func FilterArtist(data map[string]interface{}) map[string]interface{} {
 	return filtered
 }
 
-func FilterSearch(data map[string]interface{}) map[string]interface{} {
+func FilterSearch(data map[string]interface{}, separator string) map[string]interface{} {
 	dataMap := getMap(data, "data")
 	searchData := getMap(dataMap, "searchV2")
 	if len(searchData) == 0 {
@@ -1550,7 +1485,7 @@ func FilterSearch(data map[string]interface{}) map[string]interface{} {
 			for _, artist := range trackArtists {
 				trackArtistNames = append(trackArtistNames, getString(artist, "name"))
 			}
-			trackArtistsString := strings.Join(trackArtistNames, ", ")
+			trackArtistsString := strings.Join(trackArtistNames, separator)
 
 			durationString := getString(trackDuration, "formatted")
 
@@ -1622,7 +1557,7 @@ func FilterSearch(data map[string]interface{}) map[string]interface{} {
 			for _, artist := range albumArtists {
 				albumArtistNames = append(albumArtistNames, getString(artist, "name"))
 			}
-			albumArtistsString := strings.Join(albumArtistNames, ", ")
+			albumArtistsString := strings.Join(albumArtistNames, separator)
 
 			dateInfo := getMap(album, "date")
 			var year interface{}

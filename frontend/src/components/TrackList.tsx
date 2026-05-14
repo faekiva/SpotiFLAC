@@ -5,8 +5,9 @@ import { Spinner } from "@/components/ui/spinner";
 import { Tooltip, TooltipContent, TooltipTrigger, } from "@/components/ui/tooltip";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, } from "@/components/ui/pagination";
 import type { TrackMetadata, TrackAvailability } from "@/types/api";
-import { TidalIcon, QobuzIcon, AmazonIcon } from "./PlatformIcons";
 import { usePreview } from "@/hooks/usePreview";
+import { AvailabilityLinks, hasAvailabilityLinks } from "./AvailabilityLinks";
+import { buildClickableArtists } from "@/lib/artist-links";
 interface TrackListProps {
     tracks: TrackMetadata[];
     searchQuery: string;
@@ -116,6 +117,13 @@ export function TrackList({ tracks, searchQuery, sortBy, selectedTracks, downloa
             return (aDownloaded ? 1 : 0) - (bDownloaded ? 1 : 0);
         });
     }
+    else if (sortBy === "failed") {
+        filteredTracks = [...filteredTracks].sort((a, b) => {
+            const aFailed = a.spotify_id ? failedTracks.has(a.spotify_id) : false;
+            const bFailed = b.spotify_id ? failedTracks.has(b.spotify_id) : false;
+            return (bFailed ? 1 : 0) - (aFailed ? 1 : 0);
+        });
+    }
     const totalPages = Math.ceil(filteredTracks.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
@@ -164,6 +172,22 @@ export function TrackList({ tracks, searchQuery, sortBy, selectedTracks, downloa
         if (isNaN(num))
             return plays;
         return num.toLocaleString();
+    };
+    const getAvailabilityButtonIcon = (spotifyId?: string) => {
+        if (!spotifyId) {
+            return <Globe className="h-4 w-4"/>;
+        }
+        if (checkingAvailabilityTrack === spotifyId) {
+            return <Spinner />;
+        }
+        const availability = availabilityMap?.get(spotifyId);
+        if (!availability) {
+            return <Globe className="h-4 w-4"/>;
+        }
+        if (hasAvailabilityLinks(availability)) {
+            return <CheckCircle className="h-4 w-4 text-green-500"/>;
+        }
+        return <XCircle className="h-4 w-4 text-red-500"/>;
     };
     return (<div className="space-y-4">
     <div className="rounded-md border">
@@ -226,29 +250,22 @@ export function TrackList({ tracks, searchQuery, sortBy, selectedTracks, downloa
                       {track.spotify_id && skippedTracks.has(track.spotify_id) ? (<FileCheck className="h-4 w-4 text-yellow-500 shrink-0"/>) : track.spotify_id && downloadedTracks.has(track.spotify_id) ? (<CheckCircle className="h-4 w-4 text-green-500 shrink-0"/>) : track.spotify_id && failedTracks.has(track.spotify_id) ? (<XCircle className="h-4 w-4 text-red-500 shrink-0"/>) : null}
                     </div>
                     <span className="text-sm text-muted-foreground">
-                      {track.artists_data && track.artists_data.length > 0 ? ((() => {
-                const artistNames = track.artists.split(", ").map(name => name.trim());
-                return artistNames.map((name, i) => {
-                    const artistData = track.artists_data![i];
-                    const hasArtistData = artistData && artistData.id && artistData.external_urls;
-                    return (<span key={artistData?.id || i}>
-                            {onArtistClick && hasArtistData ? (<span className="cursor-pointer hover:underline" onClick={() => onArtistClick({
-                                id: artistData.id,
-                                name: name,
-                                external_urls: artistData.external_urls,
-                            })}>
-                              {name}
-                            </span>) : (name)}
-                            {i < artistNames.length - 1 && ", "}
-                          </span>);
-                });
-            })()) : onArtistClick && track.artist_id && track.artist_url ? (<span className="cursor-pointer hover:underline" onClick={() => onArtistClick({
-                    id: track.artist_id!,
-                    name: track.artists,
-                    external_urls: track.artist_url!,
-                })}>
-                        {track.artists}
-                      </span>) : (track.artists)}
+                      {(() => {
+                const clickableArtists = buildClickableArtists(track.artists, track.artists_data, track.artist_id, track.artist_url);
+                if (clickableArtists.length === 0) {
+                    return track.artists;
+                }
+                return clickableArtists.map((artist, i) => (<span key={`${artist.id || artist.name}-${i}`}>
+                            {onArtistClick ? (<span className="cursor-pointer hover:underline" onClick={() => onArtistClick({
+                            id: artist.id,
+                            name: artist.name,
+                            external_urls: artist.external_urls,
+                        })}>
+                                {artist.name}
+                              </span>) : (artist.name)}
+                            {i < clickableArtists.length - 1 && ", "}
+                          </span>));
+            })()}
                     </span>
                   </div>
                 </div>
@@ -297,7 +314,7 @@ export function TrackList({ tracks, searchQuery, sortBy, selectedTracks, downloa
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Download Lyric</p>
+                      <p>Download Separate Lyric</p>
                     </TooltipContent>
                   </Tooltip>)}
                   {track.images && onDownloadCover && (<Tooltip>
@@ -310,21 +327,17 @@ export function TrackList({ tracks, searchQuery, sortBy, selectedTracks, downloa
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Download Cover</p>
+                      <p>Download Separate Cover</p>
                     </TooltipContent>
                   </Tooltip>)}
                   {track.spotify_id && onCheckAvailability && (<Tooltip>
                     <TooltipTrigger asChild>
                       <Button onClick={() => onCheckAvailability(track.spotify_id!)} size="icon" variant="outline" disabled={checkingAvailabilityTrack === track.spotify_id}>
-                        {checkingAvailabilityTrack === track.spotify_id ? (<Spinner />) : availabilityMap?.has(track.spotify_id) ? (<CheckCircle className="h-4 w-4 text-green-500"/>) : (<Globe className="h-4 w-4"/>)}
+                        {getAvailabilityButtonIcon(track.spotify_id)}
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>
-                      {availabilityMap?.has(track.spotify_id) ? (<div className="flex items-center gap-2">
-                        <TidalIcon className={`w-4 h-4 ${availabilityMap.get(track.spotify_id)?.tidal ? "text-green-500" : "text-red-500"}`}/>
-                        <QobuzIcon className={`w-4 h-4 ${availabilityMap.get(track.spotify_id)?.qobuz ? "text-green-500" : "text-red-500"}`}/>
-                        <AmazonIcon className={`w-4 h-4 ${availabilityMap.get(track.spotify_id)?.amazon ? "text-green-500" : "text-red-500"}`}/>
-                      </div>) : (<p>Check Availability</p>)}
+                    <TooltipContent className="pointer-events-auto">
+                      <AvailabilityLinks availability={track.spotify_id ? availabilityMap?.get(track.spotify_id) : undefined}/>
                     </TooltipContent>
                   </Tooltip>)}
                 </div>
